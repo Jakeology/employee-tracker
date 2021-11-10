@@ -8,19 +8,24 @@ function menu() {
         name: "menu",
         message: "What would you like to do?",
         choices: [
-          "view all departments",
-          "view all roles",
-          "view all employees",
-          "add a department",
-          "add a role",
-          "add an employee",
-          "update an employee role",
+          "View All Employees",
+          "View All Employees By Department",
+          "View All Employees By Role",
+          "Add Emnployee",
+          "Remove Employee",
+          "Update Employee Role",
+          "Update Employee Manager",
+          "View All Roles",
+          "Add Role",
+          "Remove Role",
+          "View All Departments",
+          "Add Department",
+          "Remove Department",
         ],
       },
     ])
     .then((choice) => {
       switch (choice.menu) {
-        
       }
     });
 }
