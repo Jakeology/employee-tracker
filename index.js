@@ -3,7 +3,11 @@ const inquirer = require("inquirer");
 const db = require("./db/connection");
 const table = require("console.table");
 
+let departmentData = [];
+
 function menu() {
+  loadData();
+
   inquirer
     .prompt([
       {
@@ -12,7 +16,7 @@ function menu() {
         message: "What would you like to do?",
         choices: [
           "View All Employees",
-          "Add Emnployee",
+          "Add Employee",
           "Update Employee Role",
           "View All Roles",
           "Add Role",
@@ -42,10 +46,16 @@ function menu() {
   }
 }
 
-function getByValue(arr, value) {
-  for (i = 0; i < arr.length; i++) {
-    if (arr[i].name == value) return arr[i];
-  }
+function loadData() {
+  const sql = `SELECT * FROM department`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+
+    for (i = 0; i < results.length; i++) {
+      departmentData.push(results[i]);
+    }
+  });
 }
 
 menu();
