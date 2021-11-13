@@ -4,9 +4,13 @@ const db = require("./db/connection");
 const table = require("console.table");
 
 let departmentData = [];
+let employeeData = [];
+let roleData = [];
 
 function menu() {
-  loadData();
+  loadDepartmentData();
+  loadEmployeeData();
+  loadRoleData();
 
   inquirer
     .prompt([
@@ -46,7 +50,7 @@ function menu() {
   }
 }
 
-function loadData() {
+function loadDepartmentData() {
   const sql = `SELECT * FROM department`;
 
   db.query(sql, function (err, results) {
@@ -54,6 +58,30 @@ function loadData() {
 
     for (i = 0; i < results.length; i++) {
       departmentData.push(results[i]);
+    }
+  });
+}
+
+function loadEmployeeData() {
+  const sql = `SELECT * FROM employee`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+
+    for (i = 0; i < results.length; i++) {
+      employeeData.push(results[i]);
+    }
+  });
+}
+
+function loadRoleData() {
+  const sql = `SELECT * FROM role`;
+
+  db.query(sql, function (err, results) {
+    if (err) throw err;
+
+    for (i = 0; i < results.length; i++) {
+      roleData.push(results[i]);
     }
   });
 }
