@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 
 const db = require("./db/connection");
 const table = require("console.table");
+const { up } = require("inquirer/lib/utils/readline");
 
 let departmentData = [];
 let employeeData = [];
@@ -32,6 +33,9 @@ function menu() {
           break;
         case "Add Employee":
           addEmployee();
+          break;
+        case "Update Employee Role":
+          updateEmployeeRole();
           break;
         case "View All Departments":
           viewAllDepartments();
@@ -105,12 +109,51 @@ function menu() {
           if (err) throw err;
 
           loadEmployeeData();
-          
+
           console.log("");
           menu();
         });
       });
   }
+
+  function updateEmployeeRole() {
+    const employeeNames = getEmployeeNames();
+    const roleNames = getRoleNames();
+
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "employee_name",
+          message: "What is the employee's name?",
+          choices: employeeNames,
+        },
+        {
+          type: "list",
+          name: "role_name",
+          message: "What is the employee's new role?",
+          choices: roleNames,
+        },
+      ])
+      .then((answers) => {
+        const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+        let em = answers.employee_name.split(" ");
+        const getEmployeeId = employeeData.filter(x => x.first_name == em[0] && x.last_name == em[1]);
+        const getRoleId = roleData.filter((x) => x.title === answers.role_name);
+        const params = [getRoleId[0].id, getEmployeeId[0].id];
+
+        db.query(sql, params, function (err, results) {
+          if (err) throw err;
+
+          loadEmployeeData();
+
+          console.log("");
+          menu();
+        });
+      });
+
+  }
+
 
   function viewAllDepartments() {
     console.log("");
@@ -132,6 +175,7 @@ function menu() {
 }
 
 function loadDepartmentData() {
+  departmentData = [];
   const sql = `SELECT * FROM department`;
 
   db.query(sql, function (err, results) {
@@ -144,6 +188,7 @@ function loadDepartmentData() {
 }
 
 function loadEmployeeData() {
+  employeeData = [];
   const sql = `SELECT * FROM employee`;
 
   db.query(sql, function (err, results) {
@@ -156,6 +201,7 @@ function loadEmployeeData() {
 }
 
 function loadRoleData() {
+  roleData = [];
   const sql = `SELECT * FROM role`;
 
   db.query(sql, function (err, results) {
@@ -185,6 +231,16 @@ function getManagerNames() {
     }
   }
   return managerArray;
+}
+
+function getEmployeeNames() {
+  let employeeArray = [];
+
+  for (i = 0; i < employeeData.length; i++) {
+    employeeArray.push(employeeData[i].first_name + " " + employeeData[i].last_name);
+  }
+
+  return employeeArray;
 }
 
 loadDepartmentData();
