@@ -8,10 +8,6 @@ let employeeData = [];
 let roleData = [];
 
 function menu() {
-  loadDepartmentData();
-  loadEmployeeData();
-  loadRoleData();
-
   inquirer
     .prompt([
       {
@@ -34,6 +30,9 @@ function menu() {
         case "View All Employees":
           viewAllEmployees();
           break;
+        case "Add Employee":
+          addEmployee();
+          break;
         case "View All Departments":
           viewAllDepartments();
           break;
@@ -53,6 +52,64 @@ function menu() {
       console.table(results);
       menu();
     });
+  }
+
+  function addEmployee() {
+    const roleNames = getRoleNames();
+    const managerNames = getManagerNames();
+
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "What is the employee's first name?",
+          validate: (first_name) => {
+            if (first_name) {
+              return true;
+            }
+            return "Please enter a valid first name.";
+          },
+        },
+        {
+          type: "input",
+          name: "last_name",
+          message: "What is the employee's last name?",
+          validate: (last_name) => {
+            if (last_name) {
+              return true;
+            }
+            return "Please enter a valid last name.";
+          },
+        },
+        {
+          type: "list",
+          name: "role_name",
+          message: "What is the employee's role?",
+          choices: roleNames,
+        },
+        {
+          type: "list",
+          name: "manager_name",
+          message: "Who is the employee's manager?",
+          choices: managerNames,
+        },
+      ])
+      .then((answers) => {
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+        const getManagerId = employeeData.filter((x) => x.first_name + " " + x.last_name === answers.manager_name);
+        const getRoleId = roleData.filter((x) => x.title === answers.role_name);
+        const params = [answers.first_name, answers.last_name, getRoleId[0].id, getManagerId[0].id];
+
+        db.query(sql, params, function (err, results) {
+          if (err) throw err;
+
+          loadEmployeeData();
+          
+          console.log("");
+          menu();
+        });
+      });
   }
 
   function viewAllDepartments() {
@@ -110,4 +167,27 @@ function loadRoleData() {
   });
 }
 
+function getRoleNames() {
+  let roleArray = [];
+  for (i = 0; i < roleData.length; i++) {
+    roleArray.push(roleData[i].title);
+  }
+  return roleArray;
+}
+
+function getManagerNames() {
+  let managerArray = [];
+  let depFilter = departmentData.filter((x) => x.name === "Manager");
+  let roleFiler = roleData.filter((x) => x.department_id === depFilter[0].id);
+  for (i = 0; i < employeeData.length; i++) {
+    if (employeeData[i].role_id === roleFiler[0].id) {
+      managerArray.push(employeeData[i].first_name + " " + employeeData[i].last_name);
+    }
+  }
+  return managerArray;
+}
+
+loadDepartmentData();
+loadEmployeeData();
+loadRoleData();
 menu();
