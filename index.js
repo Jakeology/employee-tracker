@@ -19,10 +19,10 @@ function menu() {
           "View All Employees",
           "Add Employee",
           "Update Employee Role",
-          "View All Roles",
-          "Add Role",
           "View All Departments",
           "Add Department",
+          "View All Roles",
+          "Add Role",
         ],
       },
     ])
@@ -39,6 +39,9 @@ function menu() {
           break;
         case "View All Departments":
           viewAllDepartments();
+          break;
+        case "Add Department":
+          addDepartment();
           break;
         case "View All Roles":
           viewAllRoles();
@@ -138,7 +141,7 @@ function menu() {
       .then((answers) => {
         const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
         let em = answers.employee_name.split(" ");
-        const getEmployeeId = employeeData.filter(x => x.first_name == em[0] && x.last_name == em[1]);
+        const getEmployeeId = employeeData.filter((x) => x.first_name == em[0] && x.last_name == em[1]);
         const getRoleId = roleData.filter((x) => x.title === answers.role_name);
         const params = [getRoleId[0].id, getEmployeeId[0].id];
 
@@ -151,14 +154,42 @@ function menu() {
           menu();
         });
       });
-
   }
-
 
   function viewAllDepartments() {
     console.log("");
     console.table(departmentData);
     menu();
+  }
+
+  function addDepartment() {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "department_name",
+          message: "What is the new departments name?",
+          validate: (department_name) => {
+            if (department_name) {
+              return true;
+            }
+            return "Please enter a valid department name.";
+          },
+        },
+      ])
+      .then((answers) => {
+        const sql = `INSERT INTO department (name) VALUES (?)`;
+        const params = [answers.department_name];
+
+        db.query(sql, params, function (err, results) {
+          if (err) throw err;
+
+          loadDepartmentData();
+
+          console.log("");
+          menu();
+        });
+      });
   }
 
   function viewAllRoles() {
