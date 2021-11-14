@@ -46,6 +46,9 @@ function menu() {
         case "View All Roles":
           viewAllRoles();
           break;
+        case "Add Role":
+          addRole();
+          break;
       }
     });
 
@@ -201,6 +204,55 @@ function menu() {
       console.log("");
       console.table(results);
       menu();
+    });
+  }
+
+  function addRole() {
+    inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "title",
+        message: "What is the new role's title?",
+        validate: (title) => {
+          if (title) {
+            return true;
+          }
+          return "Please enter a valid role name.";
+        },
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the salary of this new role?",
+        validate: (salary) => {
+          if (salary) {
+            return true;
+          }
+          return "Please enter a valid role salary.";
+        },
+      },
+      {
+        type: "list",
+        name: "department_name",
+        message: "What is the employee's new role?",
+        choices: departmentData,
+      },
+    ])
+    .then((answers) => {
+      const depFilter = departmentData.filter((x) => x.name === answers.department_name);
+
+      const sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+      const params = [answers.title, answers.salary, depFilter[0].id];
+
+      db.query(sql, params, function (err, results) {
+        if (err) throw err;
+
+        loadRoleData();
+
+        console.log("");
+        menu();
+      });
     });
   }
 }
