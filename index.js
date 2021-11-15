@@ -2,7 +2,6 @@ const inquirer = require("inquirer");
 
 const db = require("./db/connection");
 const table = require("console.table");
-const { up } = require("inquirer/lib/utils/readline");
 
 let departmentData = [];
 let employeeData = [];
@@ -110,7 +109,7 @@ function menu() {
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
         const getRoleId = roleData.filter((x) => x.title === answers.role_name);
 
-        if(answers.manager_name === "None") {
+        if (answers.manager_name === "None") {
           params = [answers.first_name, answers.last_name, getRoleId[0].id, null];
         } else {
           let getManagerId = employeeData.filter((x) => x.first_name + " " + x.last_name === answers.manager_name);
@@ -215,51 +214,51 @@ function menu() {
 
   function addRole() {
     inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "title",
-        message: "What is the new role's title?",
-        validate: (title) => {
-          if (title) {
-            return true;
-          }
-          return "Please enter a valid role name.";
+      .prompt([
+        {
+          type: "input",
+          name: "title",
+          message: "What is the new role's title?",
+          validate: (title) => {
+            if (title) {
+              return true;
+            }
+            return "Please enter a valid role name.";
+          },
         },
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "What is the salary of this new role?",
-        validate: (salary) => {
-          if (salary) {
-            return true;
-          }
-          return "Please enter a valid role salary.";
+        {
+          type: "input",
+          name: "salary",
+          message: "What is the salary of this new role?",
+          validate: (salary) => {
+            if (salary) {
+              return true;
+            }
+            return "Please enter a valid role salary.";
+          },
         },
-      },
-      {
-        type: "list",
-        name: "department_name",
-        message: "What is the roles department?",
-        choices: departmentData,
-      },
-    ])
-    .then((answers) => {
-      const depFilter = departmentData.filter((x) => x.name === answers.department_name);
+        {
+          type: "list",
+          name: "department_name",
+          message: "What is the roles department?",
+          choices: departmentData,
+        },
+      ])
+      .then((answers) => {
+        const depFilter = departmentData.filter((x) => x.name === answers.department_name);
 
-      const sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
-      const params = [answers.title, answers.salary, depFilter[0].id];
+        const sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+        const params = [answers.title, answers.salary, depFilter[0].id];
 
-      db.query(sql, params, function (err, results) {
-        if (err) throw err;
+        db.query(sql, params, function (err, results) {
+          if (err) throw err;
 
-        loadRoleData();
+          loadRoleData();
 
-        console.log("");
-        menu();
+          console.log("");
+          menu();
+        });
       });
-    });
   }
 }
 
