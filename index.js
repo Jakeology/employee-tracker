@@ -103,15 +103,6 @@ function menu() {
           name: "manager_name",
           message: "Who is the employee's manager?",
           choices: managerNames,
-          when: ({ role_name }) => {
-            const getRoleId = roleData.filter((x) => x.title === role_name);
-            let depFilter = departmentData.filter((x) => x.name === "Manager");
-            if (getRoleId[0].department_id === depFilter[0].id) {
-              return false;
-            } else {
-              return true;
-            }
-          },
         },
       ])
       .then((answers) => {
@@ -119,7 +110,7 @@ function menu() {
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
         const getRoleId = roleData.filter((x) => x.title === answers.role_name);
 
-        if(answers.manager_name === undefined || answers.manager_name === null) {
+        if(answers.manager_name === "None") {
           params = [answers.first_name, answers.last_name, getRoleId[0].id, null];
         } else {
           let getManagerId = employeeData.filter((x) => x.first_name + " " + x.last_name === answers.manager_name);
@@ -328,6 +319,7 @@ function getManagerNames() {
       managerArray.push(employeeData[i].first_name + " " + employeeData[i].last_name);
     }
   }
+  managerArray.push("None");
   return managerArray;
 }
 
