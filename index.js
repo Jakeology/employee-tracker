@@ -103,13 +103,28 @@ function menu() {
           name: "manager_name",
           message: "Who is the employee's manager?",
           choices: managerNames,
+          when: ({ role_name }) => {
+            const getRoleId = roleData.filter((x) => x.title === role_name);
+            let depFilter = departmentData.filter((x) => x.name === "Manager");
+            if (getRoleId[0].department_id === depFilter[0].id) {
+              return false;
+            } else {
+              return true;
+            }
+          },
         },
       ])
       .then((answers) => {
+        let params;
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
-        const getManagerId = employeeData.filter((x) => x.first_name + " " + x.last_name === answers.manager_name);
         const getRoleId = roleData.filter((x) => x.title === answers.role_name);
-        const params = [answers.first_name, answers.last_name, getRoleId[0].id, getManagerId[0].id];
+
+        if(answers.manager_name === undefined || answers.manager_name === null) {
+          params = [answers.first_name, answers.last_name, getRoleId[0].id, null];
+        } else {
+          let getManagerId = employeeData.filter((x) => x.first_name + " " + x.last_name === answers.manager_name);
+          params = [answers.first_name, answers.last_name, getRoleId[0].id, getManagerId[0].id];
+        }
 
         db.query(sql, params, function (err, results) {
           if (err) throw err;
@@ -235,7 +250,7 @@ function menu() {
       {
         type: "list",
         name: "department_name",
-        message: "What is the employee's new role?",
+        message: "What is the roles department?",
         choices: departmentData,
       },
     ])

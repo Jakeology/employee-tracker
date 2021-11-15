@@ -8,7 +8,7 @@ INSERT INTO role (title, salary, department_id)
 VALUES
     ("Prep Cook", "1500", 1),
     ("Cook", "2000", 1),
-    ("Diswasher", "2000", 1),
+    ("Dishwasher", "2000", 1),
     ("Busser", "3000", 2),
     ("Host", "3000", 2),
     ("Server", "5000", 2),
